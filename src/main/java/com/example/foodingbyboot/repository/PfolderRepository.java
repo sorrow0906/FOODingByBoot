@@ -14,5 +14,5 @@ public interface PfolderRepository extends JpaRepository<Pfolder, Integer> {
 
     List<Pfolder> findByMemberMno(@Param("mno") int mno);
 
-    List<Pfolder> findByPfno(List<Integer> pfnoList);
+    //List<Pfolder> findByPfno(List<Integer> pfnoList);
 }
