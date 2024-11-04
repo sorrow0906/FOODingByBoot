@@ -1,5 +1,6 @@
 package com.example.foodingbyboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class Menu {
     private String mnprice;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "sno")
     private Store store;
 }

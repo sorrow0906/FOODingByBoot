@@ -1,5 +1,6 @@
 package com.example.foodingbyboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class Tag {
     private String ttag;
 
     @OneToMany(mappedBy = "tag")
+    @JsonIgnore
     private List<ReviewTag> reviewTags;
 
 }

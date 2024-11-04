@@ -1,5 +1,6 @@
 package com.example.foodingbyboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,10 +19,12 @@ public class StoreTag {
     private int stno; // 리뷰 태그의 고유 식별자
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "sno")
     private Store store; // 리뷰와의 다대일 관계
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "tno")
     private Tag tag; // 태그와의 다대일 관계
 

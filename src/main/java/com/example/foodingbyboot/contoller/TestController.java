@@ -1,7 +1,13 @@
 package com.example.foodingbyboot.contoller;
 
+import com.example.foodingbyboot.entity.Menu;
 import com.example.foodingbyboot.entity.Store;
+import com.example.foodingbyboot.entity.StoreTag;
+import com.example.foodingbyboot.repository.ReviewRepository;
+import com.example.foodingbyboot.service.MenuService;
+import com.example.foodingbyboot.service.ReviewService;
 import com.example.foodingbyboot.service.StoreService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -12,18 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api") // 기본 경로 설정
 public class TestController {
-    @Autowired
-    private StoreService storeService;
-
+    private final StoreService storeService;
+    private final ReviewService reviewService;
+    private final MenuService menuService;
 
     @GetMapping("/stores-main") // 최종 경로: /api/stores-test
     public ResponseEntity<Map<String, Object>> showStoreListByScate(
             @RequestParam(value = "sortBy", required = false) String sortBy,
             @RequestParam(value = "scates", required = false) String scates) {
-        // 테스트용 데이터
         Map<String, Object> response = new HashMap<>();
         System.out.println(scates);
         List<String> allScates = List.of("한식", "일식", "중식", "양식", "세계요리", "빵/디저트", "차/커피", "술집");;
@@ -54,8 +60,9 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-/*    @GetMapping("/store-detail")
-    public String storeDetail(@RequestParam("sno") int sno, Model model) {
+    @GetMapping("/store-detail")
+    public ResponseEntity<Map<String, Object>> storeDetail(@RequestParam("sno") int sno) {
+        Map<String, Object> response = new HashMap<>();
         Store store = storeService.getStoreAllInfo(sno);
         List<Menu> menus = menuService.getMenuBySno(sno);
         List<StoreTag> storeTags = storeService.getStoreTagsByStoreSno(sno);
@@ -65,10 +72,10 @@ public class TestController {
         for(StoreTag storeTag : storeTags) {
             System.out.println(storeTag.getTag().getTtag() +"의 수: " + storeTag.getTagCount());
         }
-        model.addAttribute("rCount", rCount);
-        model.addAttribute("store", store);
-        model.addAttribute("menus", menus);
-        model.addAttribute("storeTags", storeTags);
-        return "storeDetail";
-    }*/
+        response.put("rCount", rCount);
+        response.put("store", store);
+        response.put("menus", menus);
+        response.put("storeTags", storeTags);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.foodingbyboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,7 @@ public class Review {
     private Integer mdelete;
     private Integer adelete;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "review", cascade = CascadeType.REMOVE)
     private List<ReviewTag> reviewTags;
 

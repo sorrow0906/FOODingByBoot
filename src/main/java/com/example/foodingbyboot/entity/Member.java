@@ -1,5 +1,7 @@
 package com.example.foodingbyboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +21,7 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int mno;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "member") // 수정사항
     private List<MemberGroup> memberGroupList; // 수정사항
 

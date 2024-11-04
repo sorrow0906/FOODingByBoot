@@ -123,4 +123,15 @@ public class StoreService {
         // 그냥 list로 return하면 불변 list라서 정렬이 안 되기 때문에 복사해서 return함
         return new ArrayList<>(storeCache.values());
     }
+
+    public Store getStoreAllInfo(int sno) {
+        if (storeCache.isEmpty()) {
+            initializeStoreScores();
+        }
+        return storeCache.get(sno);
+    }
+
+    public List<StoreTag> getStoreTagsByStoreSno(int sno) {
+        return storeTagRepository.findByStore_Sno(sno);
+    }
 }
