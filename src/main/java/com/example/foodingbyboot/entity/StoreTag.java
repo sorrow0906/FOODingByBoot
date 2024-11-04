@@ -24,7 +24,6 @@ public class StoreTag {
     private Store store; // 리뷰와의 다대일 관계
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "tno")
     private Tag tag; // 태그와의 다대일 관계
 

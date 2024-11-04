@@ -47,6 +47,18 @@ public class StoreService {
     }
 
     @Transactional
+    public void updateStoreInCache(int sno) {
+        Store store = storeRepository.findBySno(sno).orElse(null);
+        if (store != null) {
+            // 별점 평균과 Pick 수를 다시 계산
+            calculateAndCacheStoreScores(store);
+
+            // 태그 수 갱신
+            updateStoreTags(store);
+        }
+    }
+
+    @Transactional
     public void updateStoreTags(Store store) {
         // review의 mdelete나 adelete 값이 1이 아닌 경우로 예외처리 완료
         List<ReviewTag> reviewTags = reviewTagRepository.findValidReviewTagsByStoreSno(store.getSno());

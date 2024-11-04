@@ -1,20 +1,21 @@
 package com.example.foodingbyboot.contoller;
 
+import com.example.foodingbyboot.entity.Member;
 import com.example.foodingbyboot.entity.Menu;
 import com.example.foodingbyboot.entity.Store;
 import com.example.foodingbyboot.entity.StoreTag;
 import com.example.foodingbyboot.repository.ReviewRepository;
 import com.example.foodingbyboot.service.MenuService;
+import com.example.foodingbyboot.service.PickService;
 import com.example.foodingbyboot.service.ReviewService;
 import com.example.foodingbyboot.service.StoreService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -25,6 +26,7 @@ public class TestController {
     private final StoreService storeService;
     private final ReviewService reviewService;
     private final MenuService menuService;
+    private final PickService pickService;
 
     @GetMapping("/stores-main") // 최종 경로: /api/stores-test
     public ResponseEntity<Map<String, Object>> showStoreListByScate(
@@ -78,4 +80,48 @@ public class TestController {
         response.put("storeTags", storeTags);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/pick")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> pickStore(
+            @RequestParam("sno") int sno,
+            @RequestParam(value = "pfno", defaultValue = "1") int pfno,
+            HttpSession session) {
+
+        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+        if (loggedInMember == null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response); // 401 Unauthorized
+        }
+
+        int mno = loggedInMember.getMno();
+        boolean isPicked = pickService.togglePick(mno, sno, pfno);
+        Map<String, String> response = new HashMap<>();
+        response.put("status", isPicked ? "picked" : "unpicked");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/checkPick")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> checkPick(
+            @RequestParam("sno") int sno,
+            HttpSession session) {
+
+        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+        if (loggedInMember == null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "unpicked");
+            response.put("message", "로그인이 필요합니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response); // 401 Unauthorized
+        }
+
+        int mno = loggedInMember.getMno();
+        boolean isPicked = pickService.isPicked(mno, sno);
+        Map<String, String> response = new HashMap<>();
+        response.put("status", isPicked ? "picked" : "unpicked");
+        return ResponseEntity.ok(response);
+    }
+
 }
