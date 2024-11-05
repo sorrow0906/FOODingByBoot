@@ -143,6 +143,13 @@ public class StoreService {
         return storeCache.get(sno);
     }
 
+    public Store getStoreById(int sno) {
+        if (storeCache.isEmpty()) {
+            initializeStoreScores();
+        }
+        return storeCache.get(sno);
+    }
+
     public List<StoreTag> getStoreTagsByStoreSno(int sno) {
         return storeTagRepository.findByStore_Sno(sno);
     }

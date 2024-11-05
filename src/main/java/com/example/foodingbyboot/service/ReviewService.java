@@ -11,7 +11,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
+
     private final ReviewRepository reviewRepository;
+
     public List<Review> getReviewsBySno(int sno) {
         return reviewRepository.findValidReviewsByStoreSno(sno);
     }

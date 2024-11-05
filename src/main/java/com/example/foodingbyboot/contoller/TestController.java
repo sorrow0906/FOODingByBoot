@@ -1,14 +1,8 @@
 package com.example.foodingbyboot.contoller;
 
-import com.example.foodingbyboot.entity.Member;
-import com.example.foodingbyboot.entity.Menu;
-import com.example.foodingbyboot.entity.Store;
-import com.example.foodingbyboot.entity.StoreTag;
+import com.example.foodingbyboot.entity.*;
 import com.example.foodingbyboot.repository.ReviewRepository;
-import com.example.foodingbyboot.service.MenuService;
-import com.example.foodingbyboot.service.PickService;
-import com.example.foodingbyboot.service.ReviewService;
-import com.example.foodingbyboot.service.StoreService;
+import com.example.foodingbyboot.service.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -27,6 +23,7 @@ public class TestController {
     private final ReviewService reviewService;
     private final MenuService menuService;
     private final PickService pickService;
+    private final TagService tagService;
 
     @GetMapping("/stores-main") // 최종 경로: /api/stores-test
     public ResponseEntity<Map<String, Object>> showStoreListByScate(
@@ -123,5 +120,60 @@ public class TestController {
         response.put("status", isPicked ? "picked" : "unpicked");
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/review")
+    public ResponseEntity<Map<String, Object>> review(
+            @RequestParam("sno") int sno,
+            @RequestParam(value = "sortBy", required = false) String sortBy) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        // 리뷰 조회
+        List<Review> reviews = reviewService.getReviewsBySno(sno);
+        if (reviews == null) {
+            reviews = new ArrayList<>();
+        }
+
+        // 정렬 로직
+        switch (sortBy) {
+            case "oldest":
+                reviews.sort(Comparator.comparing(Review::getRdate));
+                break;
+            case "highest":
+                reviews.sort(Comparator.comparing(Review::getRstar).reversed());
+                break;
+            case "lowest":
+                reviews.sort(Comparator.comparing(Review::getRstar));
+                break;
+            default:
+                reviews.sort(Comparator.comparing(Review::getRdate).reversed());
+        }
+
+        // Store 및 태그 조회
+        Store store = storeService.getStoreById(sno);
+        if (store == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "Store not found for sno: " + sno));
+        }
+
+        List<Tag> allTags = tagService.getAllTags();
+        reviews.forEach(review -> {
+            review.setDateToString(review.getRdate().format(DateTimeFormatter.ofPattern("yy-MM-dd")));
+            List<Tag> tags = tagService.getTagsByRno(review.getRno());
+            review.setTags(tags);
+        });
+
+        // 응답 데이터 설정
+        response.put("reviews", reviews);
+        response.put("review", new Review());
+        response.put("sno", sno);
+        response.put("store", store);
+        response.put("isEmpty", reviews.isEmpty());
+        response.put("tags", allTags);
+        response.put("sortBy", sortBy);
+
+        return ResponseEntity.ok(response);
+    }
+
 
 }
