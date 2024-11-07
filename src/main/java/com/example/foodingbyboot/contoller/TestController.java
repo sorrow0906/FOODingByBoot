@@ -32,9 +32,21 @@ public class TestController {
     @GetMapping("/stores-main") // 최종 경로: /api/stores-test
     public ResponseEntity<Map<String, Object>> showStoreListByScate(
             @RequestParam(value = "sortBy", required = false) String sortBy,
-            @RequestParam(value = "scates", required = false) String scates) {
+            @RequestParam(value = "scates", required = false) String scates, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
-        System.out.println(scates);
+        
+        // 로그아웃시 세션만료가 제대로 되는지 확인하기 위해 추가
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+            if (loggedInMember != null)
+                System.out.println("지금 로그인 되어있는 회원: " + loggedInMember.getMnick());
+            else
+                System.out.println("로그인된 회원이 없습니다.");
+        }
+        else
+            System.out.println("session이 비어있습니다.");
+        
         List<String> allScates = List.of("한식", "일식", "중식", "양식", "세계요리", "빵/디저트", "차/커피", "술집");;
         response.put("allScates", allScates);
 
