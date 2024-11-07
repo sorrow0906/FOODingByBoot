@@ -35,7 +35,7 @@ public class TestController {
             @RequestParam(value = "scates", required = false) String scates, HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         
-        // 로그아웃시 세션만료가 제대로 되는지 확인하기 위해 추가
+/*        // 로그아웃시 세션만료가 제대로 되는지 확인하기 위해 추가
         HttpSession session = request.getSession(false);
         if (session != null) {
             Member loggedInMember = (Member) session.getAttribute("loggedInMember");
@@ -45,7 +45,7 @@ public class TestController {
                 System.out.println("로그인된 회원이 없습니다.");
         }
         else
-            System.out.println("session이 비어있습니다.");
+            System.out.println("session이 비어있습니다.");*/
         
         List<String> allScates = List.of("한식", "일식", "중식", "양식", "세계요리", "빵/디저트", "차/커피", "술집");;
         response.put("allScates", allScates);
@@ -227,6 +227,7 @@ public class TestController {
             Member loggedInMember = (Member) session.getAttribute("loggedInMember");
             if (loggedInMember != null) {
 
+
                 System.out.println("로그인 상태 확인 완료!");
                 response.put("loggedIn", true);
                 response.put("user", loggedInMember);  // Member 객체를 그대로 넣음
@@ -238,4 +239,17 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        System.out.println("로그아웃 함수 진입");
+        if (session != null) {
+            session.removeAttribute("loggedInMember");
+            session.invalidate(); // 세션 무효화
+        }
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "로그아웃 되었습니다!");
+        return ResponseEntity.ok(response);
+    }
 }
