@@ -2,6 +2,7 @@ package com.example.foodingbyboot.contoller;
 
 import com.example.foodingbyboot.entity.*;
 import com.example.foodingbyboot.repository.ReviewRepository;
+import com.example.foodingbyboot.repository.StoreTagRepository;
 import com.example.foodingbyboot.service.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -24,6 +26,8 @@ public class TestController {
     private final MenuService menuService;
     private final PickService pickService;
     private final TagService tagService;
+    private final MemberService memberService;
+    private final StoreTagRepository storeTagRepository;
 
     @GetMapping("/stores-main") // 최종 경로: /api/stores-test
     public ResponseEntity<Map<String, Object>> showStoreListByScate(
@@ -175,5 +179,31 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials, HttpServletRequest request) {
+        String id = credentials.get("id");
+        String password = credentials.get("password");
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        Map<String, String> response = new HashMap<>();
+
+        System.out.println("아이디 = " + id);
+        System.out.println("비밀번호 = " + password);
+
+        Member member = memberService.findMemberById(id);
+
+        if (member != null && passwordEncoder.matches(password, member.getMpass())) {
+            // 로그인 성공
+            HttpSession session = (HttpSession) request.getSession();
+            session.setAttribute("loggedInMember", member); // 세션에 로그인 정보 저장
+
+            response.put("message", "로그인 성공");
+            return ResponseEntity.ok(response); // HTTP 200 OK와 함께 성공 메시지 반환
+        } else {
+            // 로그인 실패 처리
+            response.put("message", "아이디 또는 비밀번호가 일치하지 않습니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response); // HTTP 401 Unauthorized와 함께 에러 메시지 반환
+        }
+    }
 
 }
