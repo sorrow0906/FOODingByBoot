@@ -206,4 +206,24 @@ public class TestController {
         }
     }
 
+    @GetMapping("/session-user")
+    public ResponseEntity<Map<String, Object>> getSessionUser(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        Map<String, Object> response = new HashMap<>();
+
+        if (session != null) {
+            Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+            if (loggedInMember != null) {
+
+                System.out.println("로그인 상태 확인 완료!");
+                response.put("loggedIn", true);
+                response.put("user", loggedInMember);  // Member 객체를 그대로 넣음
+                return ResponseEntity.ok(response);
+            }
+        }
+
+        response.put("loggedIn", false);
+        return ResponseEntity.ok(response);
+    }
+
 }
