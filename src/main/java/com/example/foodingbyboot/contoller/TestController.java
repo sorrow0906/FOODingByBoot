@@ -94,7 +94,7 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/pick")
+   /* @PostMapping("/pick")
     @ResponseBody
     public ResponseEntity<Map<String, String>> pickStore(
             @RequestParam("sno") int sno,
@@ -135,7 +135,7 @@ public class TestController {
         Map<String, String> response = new HashMap<>();
         response.put("status", isPicked ? "picked" : "unpicked");
         return ResponseEntity.ok(response);
-    }
+    }*/
 
     @GetMapping("/review")
     public ResponseEntity<Map<String, Object>> review(
@@ -181,7 +181,6 @@ public class TestController {
 
         // 응답 데이터 설정
         response.put("reviews", reviews);
-        response.put("review", new Review());
         response.put("sno", sno);
         response.put("store", store);
         response.put("isEmpty", reviews.isEmpty());
@@ -217,6 +216,31 @@ public class TestController {
         response.put("newReview", newReview);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/review-delete")
+    public ResponseEntity<Map<String, Object>> deleteReview(
+            @RequestBody Map<String, Object> requestData,
+            HttpSession session) {
+
+        Integer rno = (Integer) requestData.get("rno");
+        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+
+        if (loggedInMember == null) {
+            // 로그인되지 않은 사용자 처리
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("error", "로그인이 필요합니다."));
+        }
+
+        Review review = reviewService.getReviewByRno(rno);
+        reviewService.deleteReviewByRno(rno);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "리뷰가 삭제되었습니다.");
+
+        return ResponseEntity.ok(response);
+    }
+
+
 
 
     @PostMapping("/login")

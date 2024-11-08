@@ -31,4 +31,14 @@ public class ReviewService {
 
         return reviewRepository.save(review);
     }
+
+    public Review getReviewByRno(int rno) {
+        return (Review) reviewRepository.findByRno(rno).orElse(null);
+    }
+
+    @Transactional
+    public void deleteReviewByRno(int rno) {
+        reviewRepository.markReviewAsDeleted(rno);
+    }
+
 }
