@@ -46,6 +46,13 @@ public class StoreService {
         }
     }
 
+    public void saveStore(Store store) {
+//        System.out.println("saveStore에 진입");
+        storeRepository.save(store);
+        updateStoreTags(store);
+        calculateAndCacheStoreScores(store);
+    }
+
     @Transactional
     public void updateStoreInCache(int sno) {
         Store store = storeRepository.findBySno(sno).orElse(null);

@@ -191,6 +191,34 @@ public class TestController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/review-submit")
+    public ResponseEntity<Map<String, Object>> submitReview(
+            @RequestBody Map<String, Object> requestData,
+            HttpSession session) {
+        Integer sno = (Integer) requestData.get("sno");
+        Integer rstar = (Integer) requestData.get("rstar");
+        String rcomm = (String) requestData.get("rcomm");
+        Member loggedInMember = (Member) session.getAttribute("loggedInMember");
+        if (loggedInMember == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("error", "로그인이 필요합니다."));
+        }
+
+        Review newReview = new Review();
+        newReview.setStore(storeService.getStoreById(sno));
+        newReview.setRcomm(rcomm);
+        newReview.setMember(loggedInMember);
+        newReview.setRstar(rstar);
+
+        reviewService.saveReview(newReview);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "리뷰가 등록되었습니다.");
+        response.put("newReview", newReview);
+        return ResponseEntity.ok(response);
+    }
+
+
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials, HttpServletRequest request) {
         String id = credentials.get("id");
